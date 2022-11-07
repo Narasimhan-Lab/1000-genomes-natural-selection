@@ -7,6 +7,8 @@ from scipy.optimize import minimize
 from scipy.stats.distributions import chi2
 
 ##########################################################
+##########################################################
+
 # population info here
 # e.g. target = "C", source1 = "A", source2 = "B" for the model C = A + B
 target = "EN"
@@ -21,17 +23,18 @@ pop_proportions = [0.163, 0.837]
 
 assert (np.sum(pop_proportions) == 1)
 
-##########################################################
-
 # paths of hdf5 files with read count data
 ref_path = "/work2/07754/meganle/lonestar/run_v4.4/data/v4_v9_combined_BA_refAlleles.hdf5"
 alt_path = "/work2/07754/meganle/lonestar/run_v4.4/data/v4_v9_combined_BA_altAlleles.hdf5"
 
 # indices of samples in hdf5 file for each population
-t_npy = "../../data/" + target + "_indices.npy"
+target_npy = "../../data/" + target + "_indices.npy"
 s1_npy = "../../data/" + source1 + "_indices.npy"
 s2_npy = "../../data/" + source2 + "_indices.npy"
-ids_list = [s1_npy, s2_npy, t_npy]
+ids_list = [s1_npy, s2_npy, target_npy]
+
+##########################################################
+##########################################################
 
 # these arguments are used to split the scan up into multiple chunks for parallel computation
 # first user argument, specifies which relative position to start at (out of 1150477 positions in our case)
