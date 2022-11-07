@@ -1,5 +1,6 @@
 # 1,000 ancient genomes uncover 10,000 years of natural selection in Europe
 The bioRxiv preprint can be found here: https://biorxiv.org/content/10.1101/2022.08.24.505188
+
 The corresponding authors can be contacted at vagheesh@utexas.edu, reich@genetics.med.harvard.edu, and arbelharpak@utexas.edu.
 
 ## Monogenic Scan
@@ -36,3 +37,20 @@ The script can then be run with
 ./compile_monogenic_results.py n k
 ```
 where `n` is the number of segments the genome was divided into, and `k` is the number of positions in each segment.
+
+## Polygenic Scan
+The GWAS summary statistics used with this script can be found at https://humandbs.biosciencedbc.jp/files/hum0197.org/. The script is run as follows:
+```
+./polygenic_window_test.py TRAIT EPOCH P_EXP DATASET
+```
+with the following parameter descriptions:
+* `TRAIT`: trait ID (e.g., A02B, A10, AA...)
+* `EPOCH`: a label to indicate which epoch to scan (since we used 3 time periods in this project)
+* `P_EXP`: p-value cutoff exponent for choosing significant GWAS SNPs (e.g., a `P_EXP` of 6 corresponds to using a cutoff of 1e-6)
+* `DATASET`: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank
+
+The following file paths will also need to be adjusted:
+* `gwas_file`: file with summary statistics
+* `ld_file`: file with LD map
+* `scan_file`: file with monogenic selection scan results
+* `b_file`: B statistic file

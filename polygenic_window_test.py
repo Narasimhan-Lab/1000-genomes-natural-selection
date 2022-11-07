@@ -10,8 +10,8 @@ import glob
 # first argument: trait ID
 TRAIT = sys.argv[1]
 
-# second argument: population
-population = ["EN", "BA", "H"][int(sys.argv[2])]
+# second argument: epoch
+EPOCH = ["EN", "BA", "H"][int(sys.argv[2])]
 
 # third argument: p-value threshold when choosing associated SNPs
 P_EXP = int(sys.argv[3])
@@ -32,9 +32,6 @@ if DATASET == "UKB":
 elif DATASET == "BBJ":
 	gwas_path = "/scratch1/07754/meganle/GWAS_stats/hum0197.v3.BBJ." + TRAIT + ".v1/*.auto.txt"
 	gwas_file = open(glob.glob(gwas_path)[0], 'r')
-elif DATASET == "body-proportions":
-	gwas_path = "/scratch1/07754/meganle/bolt_lmm_2021_11_14/" + TRAIT + "_lmm_combo.tab"
-	gwas_file = open(gwas_path, "r")
 else:
 	assert 0
 
@@ -43,7 +40,7 @@ LD_CUTOFFS = [1.42309722e-19, 1.33096160e-06, 7.99490360e-04, 1.00316488e-02, 5.
 
 ld_file = open("/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt")
 	
-scan_file = open("/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_" + population + "_scan_results_v5_recorrect.txt")
+scan_file = open("/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_" + EPOCH + "_scan_results_v5_recorrect.txt")
 b_file = open("/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp.annot_v2")
 
 NUM_BINS = 8
@@ -61,7 +58,7 @@ COL_BETA = 5
 COL_FREQ = 6
 COL_FREQA = 7
 
-print("Population:", population)
+print("Population:", EPOCH)
 print("GWAS Path:", gwas_path)
 print("Threshold:", P_CUTOFF)
 print("Number of trials:", NUM_TRIALS)
@@ -414,9 +411,9 @@ if num_lowest != 0:
 	
         # save the results to a .npy file to be auto compiled into a spreadsheet
 	if USE_EFFECT_SIZE:
-		np.save("./" + DATASET + "_effect_size/results/" + TRAIT + "_" + str(P_EXP) + "_" + population + ".npy", [num_lowest, lower_count, higher_count])
+		np.save("./" + DATASET + "_effect_size/results/" + TRAIT + "_" + str(P_EXP) + "_" + EPOCH + ".npy", [num_lowest, lower_count, higher_count])
 	else:
-		np.save("./" + DATASET + "_no_effect_size/results/" + TRAIT + "_" + str(P_EXP) + "_" + population + ".npy", [num_lowest, lower_count, higher_count])
+		np.save("./" + DATASET + "_no_effect_size/results/" + TRAIT + "_" + str(P_EXP) + "_" + EPOCH + ".npy", [num_lowest, lower_count, higher_count])
 		
 
 ld_file.close()
