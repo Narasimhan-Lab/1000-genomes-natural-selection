@@ -27,15 +27,17 @@ After the header has been modified, the script can be run with
 ```
 where `p` is the relative position of the SNP where computation should start (with zero-indexing),  and `n` is the number positions to perform calculations on (so that the genome can be split up into segments for parallel computation). For example, `./monogenic_scan.py 5000 1000` would scan 1000 sequential positions starting from the 5001st row in the read count matrices.
 
-The script will save the following information for each position into numpy files: estimated allele frequencies for each population, expected allele frequency of the target population, number of samples with non-zero read count data for each population, uncorrected chi-squared statistic for the likelihood ratio test, uncorrected p-value of the likelihood ratio test, and intermediate calculations from the likelihood ratio test. In the previous example of running `./monogenic_scan.py 5000 1000`, the p-values from the likelihood ratio test would be saved as a 1000-length array in the file `p_vals5000.npy`, the chi-squared statistics as `stats5000.npy`, and so on.
+The ```divide_jobs.sh``` script is an example of how to automatically divide the genome to be scanned as parallel segments.
+
+The script will save the following information for each position into NumPy files: estimated allele frequencies for each population, expected allele frequency of the target population, number of samples with non-zero read count data for each population, uncorrected chi-squared statistic for the likelihood ratio test, uncorrected p-value of the likelihood ratio test, and intermediate calculations from the likelihood ratio test. In the previous example of running `./monogenic_scan.py 5000 1000`, the p-values from the likelihood ratio test would be saved as a 1000-length array in the file `p_vals5000.npy`, the chi-squared statistics as `stats5000.npy`, and so on.
 
 ### Compiling scan results
 
-The `compile_monogenic_results.py` file will compile the output numpy files from the selection scan into a .txt file. The script can be run with
+The `compile_monogenic_results.py` file will compile the output NumPy files from the selection scan into a .txt file. The script can be run with
 ```
 ./compile_monogenic_results.py n k
 ```
-where `n` is the number of segments the genome was divided into, and `k` is the number of positions in each segment.
+where `n` is the number of segments the genome was divided into (e.g. using ```divide_jobs.sh```, and `k` is the number of positions in each segment.
 
 ## Polygenic Scan
 The GWAS summary statistics used with this script can be found at https://humandbs.biosciencedbc.jp/files/hum0197.org/. The script is run as follows:
