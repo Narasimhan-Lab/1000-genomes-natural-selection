@@ -1,0 +1,27 @@
+# population info here 
+# e.g., target = "C", source1 = "A", source2 = "B" for the model C = A + B
+populations:
+    target: "EN"
+    source1: "M"
+    source2: "AN"
+
+qpAdm_results:
+    # qpAdm proportion estimate and standard error (jackknife)
+    alpha: 0.237
+    standard_error: 0.003
+    # multiplier is the amount to multiply the SE by during perturbation tests
+    multiplier: 1.96
+
+# data file paths
+paths:
+    # path to .hdf5 file with reference read count matrix
+    ref_reads: "/work2/07754/meganle/lonestar/run_v19/data/refAlleles.hdf5"
+    alt_reads: "/work2/07754/meganle/lonestar/run_v19/data/altAlleles.hdf5"
+    
+    # directory where results should be saved (as npy arrays)
+    out: "../../out/scan/"
+
+    # numpy arrays with each population's indices in the read count matrices
+    target_indices: "/work2/07754/meganle/lonestar/run_v21/data/EN_indices.npy"
+    source1_indices: "/work2/07754/meganle/lonestar/run_v21/data/M_indices.npy"
+    source2_indices: "/work2/07754/meganle/lonestar/run_v21/data/AN_indices.npy"
