@@ -42,16 +42,20 @@ where `n` is the number of segments the genome was divided into (e.g. using ```d
 ## Polygenic Scan
 The GWAS summary statistics used with this script can be found at https://humandbs.biosciencedbc.jp/files/hum0197.org/. The script is run as follows:
 ```
-./polygenic_window_test.py TRAIT EPOCH P_EXP DATASET
+./polygenic_window_test.py TRAIT P_EXP DATASET
 ```
 with the following parameter descriptions:
-* `TRAIT`: trait ID (e.g., A02B, A10, AA...)
-* `EPOCH`: a label to indicate which epoch to scan (since we used 3 time periods in this project)
+* `TRAIT`: GWAS trait ID (e.g., A02B, A10, AA...)
 * `P_EXP`: p-value cutoff exponent for choosing significant GWAS SNPs (e.g., a `P_EXP` of 6 corresponds to using a cutoff of 1e-6)
 * `DATASET`: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank
 
-The following file paths will also need to be adjusted:
-* `gwas_file`: file with summary statistics
+The following variables will also need to be adjusted in polygenic_config.yml:
+* `gwas_file`: path to directory containing GWAS summary statistics
+* `selection_scan_path`: file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
 * `ld_file`: file with LD map
 * `scan_file`: file with monogenic selection scan results
 * `b_file`: B statistic file
+* `use_effect_size`: whether to use the magnitude of the GWAS beta when calculating polygenic statistic
+* `num_bins`: number of bins to use for matching
+* `num_trials`: number of trials used to generate null distribution
+* `window_size`: size of window (in bp) when picking most significant SNP

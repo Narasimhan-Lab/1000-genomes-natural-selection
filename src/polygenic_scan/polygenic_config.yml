@@ -1,0 +1,34 @@
+# Polygenic data paths
+
+paths:
+    # directory containing GWAS summary statistics, should have uniform path format across traits
+    # e.g., for our analysis, all UKB summary statistics had the filepath /GWAS_stats/hum0197.v3.EUR.{trait}.v1/*.auto.txt
+    # you will need to edit polygenic_window_test.py if your path format differs
+    gwas_path: "/scratch/07754/meganle/GWAS_stats/"
+
+    #file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
+    selection_scan_path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results.txt"
+
+    # file with LD map
+    ld_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
+
+    # B statistic file
+    b_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp.annot_v2"
+
+    # path to save result of trials
+    out: "../../out/polygenic/"
+
+
+options:
+    # True to use magnitude of beta when calculating polarized statistic
+    # False to just use the sign of beta
+    use_effect_size: false
+
+    # number bins to use when matching for LD score, B statistic, allele frequencies, etc.
+    num_bins: 8
+    
+    # number of trials used to generate null distribution
+    num_trials: 10000
+
+    # size of window (in bp) when picking most significant SNP
+    window_size: 100000
