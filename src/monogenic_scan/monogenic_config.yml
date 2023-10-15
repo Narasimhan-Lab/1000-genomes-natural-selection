@@ -25,3 +25,7 @@ paths:
     target_indices: "/work2/07754/meganle/lonestar/run_v21/data/EN_indices.npy"
     source1_indices: "/work2/07754/meganle/lonestar/run_v21/data/M_indices.npy"
     source2_indices: "/work2/07754/meganle/lonestar/run_v21/data/AN_indices.npy"
+
+    # headerless file with tab-delimited fields for chromosome, position, ref, and alt for each position being scanned
+    chrom_pos: "/work2/07754/meganle/lonestar/run_v19/data/chromPos.txt"
+    

@@ -6,8 +6,8 @@ Performs a genome-wide scan for SNPs whose allele frequencies deviate from expec
 Configure paths and scan arguments in monogenic_config.yml. The output can be summarized in a .txt file using compile_monogenic_results.py
 
 Command-line Arguments:
-    [1] p: relative position of the SNP where computation should start
-    [2] n: number of positions to perform calculations on
+    [1] start_index: relative position of the SNP where computation should start
+    [2] num_positions: number of positions to perform calculations on
 """
 import math
 import sys
