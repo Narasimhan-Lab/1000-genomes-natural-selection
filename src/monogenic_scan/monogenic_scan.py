@@ -46,9 +46,6 @@ perturbed_props = [[pop_proportions[0]+eps_q, pop_proportions[1]-eps_q], [pop_pr
 assert (np.sum(perturbed_props[0]) == 1)
 assert (np.sum(perturbed_props[1]) == 1)
 
-mat_prefix = "/work2/07754/meganle/lonestar/run_v19/data/"
-data_prefix = "/work2/07754/meganle/lonestar/run_v21/data/"
-
 # paths of hdf5 files with read count data
 ref_path = config['paths']['ref_reads']
 alt_path = config['paths']['alt_reads']
@@ -75,9 +72,15 @@ ref_tables = []
 alt_tables = []
 admixed_idx = len(populations) - 1
 
-# calculates negative log likelihood for a single population
-# theta is an array with a single entry that contains a frequency p (needs to be in this format to use scipy.minimize)
 def neg_log_likelihood_single(theta, pop_index):
+    """ Calculates negative log likelihood for a single population given a frequency
+    Args:
+        theta: array with a single entry that contains a frequency p
+        pop_index: index of population to perform calculation for
+
+    Returns:
+        Negative log likelihood value for the given frequency
+    """
     p = theta[0]
     total_counts = ref_tables[pop_index][pos_index] + alt_tables[pop_index][pos_index]
     p2 = p * p * binom.pmf(ref_tables[pop_index][pos_index], total_counts, 1-sequencing_error)
@@ -90,8 +93,14 @@ def neg_log_likelihood_single(theta, pop_index):
     ans = np.sum(res)
     return ans
 
-# theta is an array with the frequencies for both source populations
 def neg_log_likelihood_null(theta, alpha):
+    """ Calculates the negative log likelihood under the null given a frequecy and both source populations
+    Args:
+        theta: an array with the frequencies for both source populations
+        alpha: mixing proportion
+    Returns:
+        Negative log likelihood value for the given frequencies
+    """
     ans = 0
     curr_pop = 0
     for p in [theta[0], theta[1], compute_expected(alpha, theta[0], theta[1])]:
@@ -111,12 +120,23 @@ def neg_log_likelihood_null(theta, alpha):
 
     
 def neg_log(x):
+    """  Calculates negative ln of a given number
+    Args:
+        x: number to perform calculation on
+    Returns:
+        -ln(x)
+    """
     if (x == 0):
         return 0
     return -1 * math.log(x)
 
-# finds MLE
 def optimize_single(pop_index):
+    """ Calculates the MLE allele frequency for a given population
+    Args:
+        pop_index: index of population to calculate MLE for
+    Returns:
+        MLE, number of samples with non-zero read counts
+    """
     ref_counts = np.sum(ref_tables[pop_index][pos_index])
     alt_counts = np.sum(alt_tables[pop_index][pos_index])
     if(ref_counts + alt_counts == 0):
@@ -126,7 +146,7 @@ def optimize_single(pop_index):
     theta = np.array([ref_counts/(ref_counts + alt_counts)])
     # minimize the negative log likelihood
     res = minimize(neg_log_likelihood_single, theta, args = (pop_index), method = 'SLSQP', bounds=((0.001, 0.999),), options={'disp':False})
-    # number of samples with nonzero read counts
+    # count number of samples with nonzero read counts
     n = 0
     for j in range(len(ref_tables[pop_index][pos_index])):
         if ref_tables[pop_index][pos_index][j] + alt_tables[pop_index][pos_index][j] > 0:
@@ -134,6 +154,12 @@ def optimize_single(pop_index):
     return res.x[0], n
 
 def optimize_null(alpha):
+    """ Calculates the frequencies for both source populations that maximize the likelihood under the null
+    Args:
+        alpha: mixing proportion
+    Returns:
+        frequency for source 1, frequency for source 2
+    """
     # return nan if any population has 0 read counts
     for pop_index in range(3):
         if(np.sum(ref_tables[pop_index][pos_index] + alt_tables[pop_index][pos_index]) == 0):
@@ -152,12 +178,28 @@ def optimize_null(alpha):
     return res.x[0], res.x[1]
 
 def compute_expected(alpha, source_a, source_b):
+    """ Calculates the expected allele frequency for the target population in a given admixture model
+    Args:
+        alpha: mixing proportion (coefficient for population A)
+        source_a: frequency in source population A
+        source_b: frequency in source population B
+    Returns:
+        expected allele frequency of target
+    """
     assert alpha < 1 and alpha > 0
     res =  alpha*source_a + (1-alpha)*source_b
     assert (res < 1 and res > 0) or np.isnan(res)
     return res
 
 def likelihood_ratio_test(mixing_freq, estimates):
+    """ Performs the likelihood ratio test
+    Args:
+        mixing_freq: array with admixture model mixing proportions
+            (i.e., in the 2-population model, will be [alpha, 1-alpha]
+        estimates: array of MLE allele frequencies for each population
+    Returns: 
+        LRT p-value, LRT statistic, expected target allele frequency
+    """
     observed = estimates[admixed_idx]
     expected = compute_expected(mixing_freq[0], estimates[0], estimates[1])
 
@@ -165,7 +207,6 @@ def likelihood_ratio_test(mixing_freq, estimates):
         stat_res =  2 * (neg_log_likelihood_single([expected], admixed_idx) - neg_log_likelihood_single([observed], admixed_idx))
     except ValueError:
         return np.nan, np.nan, np.nan
-
     return p_value, stat_res, expected
 
 # these arrays will store the results of the scan
@@ -219,6 +260,7 @@ while(pos_index < num_positions):
         frequencies.append(result)
         pos_sample_sizes.append(n)
 
+    # save effective sample sizes for this position
     source1_sample_sizes[pos_index] = pos_sample_sizes[0]
     source2_sample_sizes[pos_index] = pos_sample_sizes[1]
     target_sample_sizes[pos_index] = pos_sample_sizes[2]
@@ -239,22 +281,25 @@ while(pos_index < num_positions):
         max_stat = np.nan
         max_p = np.nan
 
+    # save intermediate LRT calculations
     s1_h0s[pos_index] = s1_h0
     s2_h0s[pos_index] = s2_h0
     h1_neg_logs[pos_index] = h1_neg_log
     h0_neg_logs[pos_index] = h0_neg_log
 
+    # save MLEs and expected allele frequency
     source1_af[pos_index] = frequencies[0]
     source2_af[pos_index] = frequencies[1]
     target_af[pos_index] = frequencies[2]
     expected_af[pos_index] = compute_expected(pop_proportions[0], frequencies[0], frequencies[1])
-
     expected_h0[pos_index] = compute_expected(pop_proportions[0], s1_h0, s2_h0)
 
+    # save initial LRT results
     p_values[pos_index] = max_p
     statistics[pos_index] = max_stat
 
-    # save the results in our arrays
+    # perturb mixing proportions using qpAdm standard error and recalculate LRT
+    # save the result with the highest p-value
     if not np.isnan(max_p):
         for j in range(len(perturbed_props)):
             temp_props = perturbed_props[j]
@@ -272,8 +317,6 @@ while(pos_index < num_positions):
 
     pert_p[pos_index] = max_p
     pert_stat[pos_index] = max_stat
-
-    print(max_p, frequencies)
 
     pos_index += 1
 

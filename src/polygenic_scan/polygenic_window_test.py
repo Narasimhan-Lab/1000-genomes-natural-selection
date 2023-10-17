@@ -75,7 +75,13 @@ print("Number of bins:", NUM_BINS)
 invalid_count = 0
 
 def get_gwas_line(find_chr, find_loc):
-    """ Returns p_val, ref allele, alt alele, beta from the GWAS file given the chromosome and position """
+    """ Parses GWAS file line for a given loci
+    Args:
+        find_chr: chromosome of location to get information for
+        find_loc: position of location to get information for
+    Returns:
+        dictionary containing GWAS p-value, GWAS beta, ref allele, alt allele, allele frequency
+    """
     global invalid_count
     global gwas_line
     while(gwas_line):
@@ -106,7 +112,13 @@ def get_gwas_line(find_chr, find_loc):
     return np.nan
 
 def get_ld(find_chr, find_loc):
-    """ Returns recombination rate given the chromosome and position """
+    """ Finds LD score for a given location
+    Args:
+        find_chr: chromosome of location to get LD score for
+        find_loc: position of location to get LD score for
+    Returns:
+        LD score
+    """
     global ld_line
     while(ld_line):
         ld_split = ld_line.split()
@@ -127,7 +139,13 @@ def get_ld(find_chr, find_loc):
     return np.nan
 
 def get_bscore(find_chr, find_loc):
-    """ Returns B statistic given the chromosome and position """
+    """ Finds B statistic for a given location
+    Args:
+        find_chr: chromosome of location to get B statistic for
+        find_loc: position of location to get B statistic for
+    Returns:
+        B statistic
+    """
     global b_line   
     while(b_line):
         b_split = b_line.split()
@@ -170,9 +188,15 @@ def get_bscore(find_chr, find_loc):
 
         # keep searching
         b_line = b_file.readline()
+    return np.nan
 
 def get_column_indices(header):
-    """ Returns column indices for values in GWAS files (so that different GWAS file formats can be submitted in the same batch of jobs) """
+    """ Returns column indices for values in GWAS files (so that different GWAS file formats can be submitted in the same batch of jobs) 
+    Args:
+        header line
+    Returns:
+        list of indices corresponding to relevant columns
+    """
     h_split = header.split()
     indices = np.zeros(len(COL_HEADERS[0]), dtype=int)
 
