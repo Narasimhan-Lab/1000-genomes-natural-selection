@@ -11,15 +11,17 @@ Command-line Arguments:
     [3] DATASET: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank
 """
 import sys
+import os
 import math
 import random
 import copy
 
+import yaml
 import numpy as np
 import glob
 
 config = yaml.safe_load(open("polygenic_config.yml"))
-mono_config = yaml.safe_load(open("monogenic_config.yml"))
+mono_config = yaml.safe_load(open("../monogenic_scan/monogenic_config.yml"))
 
 EPOCH = mono_config['populations']['target']
 USE_EFFECT_SIZE = config['options']['use_effect_size']
@@ -28,17 +30,18 @@ USE_EFFECT_SIZE = config['options']['use_effect_size']
 TRAIT = sys.argv[1]
 
 # second argument: p-value threshold when choosing associated SNPs
-P_EXP = int(sys.argv[3])
+P_EXP = int(sys.argv[2])
 P_CUTOFF = np.float_power(10, -1 * P_EXP)
 
 # third argument: which biobank/dataset to use
-DATASET = sys.argv[4]
+DATASET = sys.argv[3]
 
 if DATASET == "UKB":
-    gwas_path = config['paths']['gwas_path'] + "hum0197.v3.EUR." + TRAIT + ".v1/*.auto.txt"
+    gwas_path = config['paths']['gwas_path'] + DATASET + "/hum0197.v3.EUR." + TRAIT + ".v1/*.auto.txt"
+    print(gwas_path)
     gwas_file = open(glob.glob(gwas_path)[0], 'r')
 elif DATASET == "BBJ":
-    gwas_path = config['paths']['gwas_path'] + "hum0197.v3.BBJ." + TRAIT + ".v1/*.auto.txt"
+    gwas_path = config['paths']['gwas_path'] + DATASET + "/hum0197.v3.BBJ." + TRAIT + ".v1/*.auto.txt"
     gwas_file = open(glob.glob(gwas_path)[0], 'r')
 else:
     assert 0
@@ -437,9 +440,13 @@ if num_lowest != 0:
     print("Number of trials lower:", lower_count)       
     print("Number of trials higher:", higher_count)     
     print("Number of trials equal:", equal_count)       
+
+    out_path = config['paths']['out'] + "trial_results/" 
+    if not os.path.exists(out_path):
+        os.makedirs(out_path)
     
     # save the results to a .npy file to be auto compiled into a spreadsheet
-    np.save(config['paths']['out'] + "trial_results/" + TRAIT + "_" + str(P_EXP) + "_" + EPOCH + ".npy", [num_lowest, lower_count, higher_count])
+    np.save(out_path + TRAIT + "_" + str(P_EXP) + "_" + EPOCH + ".npy", [num_lowest, lower_count, higher_count])
 
 ld_file.close()
 scan_file.close()
