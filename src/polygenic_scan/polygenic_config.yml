@@ -9,8 +9,8 @@ paths:
     #file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
     selection_scan_path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results_v5_recorrect.txt"
 
-    # file with LD map
-    ld_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
+    # file with recombination rate map
+    rr_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
 
     # B statistic file
     b_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp.annot_v2"

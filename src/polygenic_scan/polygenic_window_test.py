@@ -46,10 +46,10 @@ elif DATASET == "BBJ":
 else:
     assert 0
 
-# quantiles computed from LD score file
-LD_CUTOFFS = [1.42309722e-19, 1.33096160e-06, 7.99490360e-04, 1.00316488e-02, 5.29890833e-02, 1.98940513e-01, 8.59677415e-01, 9999999999]
+# quantiles computed from recombination rate map
+RR_CUTOFFS = [1.42309722e-19, 1.33096160e-06, 7.99490360e-04, 1.00316488e-02, 5.29890833e-02, 1.98940513e-01, 8.59677415e-01, 9999999999]
 
-ld_file = open(config['paths']['ld_file'], 'r')
+rr_file = open(config['paths']['rr_file'], 'r')
 scan_file = open(config['paths']['selection_scan_path'], 'r')
 b_file = open(config['paths']['b_file'], 'r')
 
@@ -114,31 +114,31 @@ def get_gwas_line(find_chr, find_loc):
     # already reached end of file
     return np.nan
 
-def get_ld(find_chr, find_loc):
-    """ Finds LD score for a given location
+def get_recombination_rate(find_chr, find_loc):
+    """ Finds recombination rate for a given location
     Args:
-        find_chr: chromosome of location to get LD score for
-        find_loc: position of location to get LD score for
+        find_chr: chromosome of location to get recombination rate for
+        find_loc: position of location to get recombination rate for
     Returns:
-        LD score
+        recombination rate
     """
-    global ld_line
-    while(ld_line):
-        ld_split = ld_line.split()
-        ld_chr = ld_split[0]
-        ld_begin = int(ld_split[1])
-        ld_end = int(ld_split[2])
+    global rr_line
+    while(rr_line):
+        rr_split = rr_line.split()
+        rr_chr = rr_split[0]
+        rr_begin = int(rr_split[1])
+        rr_end = int(rr_split[2])
 
-        if ld_chr == "X":
+        if rr_chr == "X":
             return np.nan
 
-        if ld_chr == find_chr and find_loc >= ld_begin and find_loc < ld_end:
-            return float(ld_split[3])
+        if rr_chr == find_chr and find_loc >= rr_begin and find_loc < rr_end:
+            return float(rr_split[3])
 
-        if int(ld_chr) > int(find_chr) or (ld_chr == find_chr and ld_begin > find_loc):
+        if int(rr_chr) > int(find_chr) or (rr_chr == find_chr and rr_begin > find_loc):
             return np.nan
 
-        ld_line = ld_file.readline()
+        rr_line = rr_file.readline()
     return np.nan
 
 def get_bscore(find_chr, find_loc):
@@ -218,7 +218,7 @@ def get_column_indices(header):
 
 # use global files/lines so we only have to pass through the files once
 global gwas_line
-global ld_line
+global rr_line
 global b_line
 global scan_line
 
@@ -241,8 +241,8 @@ COL_INDICES = get_column_indices(gwas_line)
 gwas_line = gwas_file.readline()
 
 
-ld_line = ld_file.readline()
-ld_line = ld_file.readline()
+rr_line = rr_file.readline()
+rr_line = rr_file.readline()
 
 b_line = b_file.readline()
 # skip over header lines
@@ -254,7 +254,7 @@ LOWEST_P = np.nan
 LOWEST_STAT = np.nan
 LOWEST_DAF_BIN = np.nan
 LOWEST_B_VALUE = np.nan
-LOWEST_LD_BIN = np.nan
+LOWEST_RR_BIN = np.nan
 
 bin_counts = np.zeros(shape=(NUM_BINS, 10, NUM_BINS))
 other_variants = []
@@ -295,11 +295,11 @@ while(scan_line):
         # get B statistic for this chromosome and position, if it exists
         bscore_data = get_bscore(chrom, loc)
 
-        # get LD score for this chromosome and position, if it exists
-        ld_score = get_ld(chrom, loc)
+        # get recombination rate for this chromosome and position, if it exists
+        r_rate = get_recombination_rate(chrom, loc)
 
-        # verify overlap between scan file, B statistic file, and LD score file
-        if np.isnan(ld_score) or isinstance(bscore_data, float) or isinstance(bscore_data['anc'], float) or isinstance(bscore_data['der'], float): 
+        # verify overlap between scan file, B statistic file, and recombination rate map
+        if np.isnan(r_rate) or isinstance(bscore_data, float) or isinstance(bscore_data['anc'], float) or isinstance(bscore_data['der'], float): 
             scan_line = scan_file.readline()
             continue
 
@@ -346,16 +346,16 @@ while(scan_line):
             else:
                 polarized = abs(stat) * direction
             
-                # iterate to find correct LD bin
-        ld_bin = 0
-        while ld_score > LD_CUTOFFS[ld_bin]:
-            ld_bin += 1
+        # iterate to find correct recombination rate bin
+        rr_bin = 0
+        while r_rate > RR_CUTOFFS[rr_bin]:
+            rr_bin += 1
 
         # check if we're in a new window
         if (cur_chr != chrom or (cur_chr == chrom and loc >= start + WINDOW_SIZE)):
             # save current lowest variant information and reset 
             if not np.isnan(LOWEST_P):
-                bin_counts[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_LD_BIN] += 1
+                bin_counts[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_RR_BIN] += 1
                 lowest_sum += LOWEST_STAT
                 num_lowest += 1
                 
@@ -364,7 +364,7 @@ while(scan_line):
                 LOWEST_STAT = np.nan
                 LOWEST_DAF_BIN = np.nan
                 LOWEST_B_VALUE = np.nan
-                LOWEST_LD_BIN = np.nan
+                LOWEST_RR_BIN = np.nan
                 LOWEST_CHR = np.nan
                 LOWEST_POS = np.nan
 
@@ -382,26 +382,26 @@ while(scan_line):
         if (np.isnan(LOWEST_P) or gwas_data['p_val'] < LOWEST_P) and gwas_data['p_val'] <= P_CUTOFF:
             if not np.isnan(LOWEST_P):
                 # bin the current lowest, since it's no longer the lowest in this window
-                other_variants[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_LD_BIN].append(LOWEST_STAT) 
+                other_variants[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_RR_BIN].append(LOWEST_STAT) 
 
             # save the current variant as the current lowest in this window
             LOWEST_P = gwas_data['p_val']
             LOWEST_STAT = polarized
             LOWEST_DAF_BIN = daf_bin
             LOWEST_B_VALUE = bscore_data['score']
-            LOWEST_LD_BIN = ld_bin
+            LOWEST_RR_BIN = rr_bin
             LOWEST_CHR = chrom
             LOWEST_POS = loc
         else:
             # this variant is not lower than the current lowest, so bin it
-            other_variants[daf_bin][bscore_data['score']][ld_bin].append(polarized)
+            other_variants[daf_bin][bscore_data['score']][rr_bin].append(polarized)
 
     scan_line = scan_file.readline()
 
 # check the last current lowest statistic
 if not np.isnan(LOWEST_P):
     lowest_sum += LOWEST_STAT
-    bin_counts[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_LD_BIN] += 1
+    bin_counts[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_RR_BIN] += 1
     num_lowest += 1
 
 if num_lowest != 0:
@@ -448,7 +448,7 @@ if num_lowest != 0:
     # save the results to a .npy file to be auto compiled into a spreadsheet
     np.save(out_path + TRAIT + "_" + str(P_EXP) + "_" + EPOCH + ".npy", [num_lowest, lower_count, higher_count])
 
-ld_file.close()
+rr_file.close()
 scan_file.close()
 b_file.close()
 gwas_file.close()
