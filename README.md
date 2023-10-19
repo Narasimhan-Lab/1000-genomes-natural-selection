@@ -47,15 +47,15 @@ The GWAS summary statistics used with this script can be found at https://humand
 with the following parameter descriptions:
 * `TRAIT`: GWAS trait ID (e.g., A02B, A10, AA...)
 * `P_EXP`: p-value cutoff exponent for choosing significant GWAS SNPs (e.g., a `P_EXP` of 6 corresponds to using a cutoff of 1e-6)
-* `DATASET`: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank
+* `DATASET`: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank (if you use a different dataset, you will have to edit the paths and headers in `polygenic_window_test.py`)
 
 The following variables will also need to be adjusted in polygenic_config.yml:
-* `gwas_file`: path to directory containing GWAS summary statistics
+* `gwas_file`: path to directory containing GWAS summary statistics, where `gwas_file` contains a `UKB` directory and a `BBJ` directory that contain the unzipped summary statistic files. You will have to edit the paths in `polygenic_window_test.py` to use different datasets
 * `selection_scan_path`: file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
-* `ld_file`: file with LD map
+* `rr_file`: file with recombination rate map (must be sorted by location)
 * `scan_file`: file with monogenic selection scan results
-* `b_file`: B statistic file
+* `b_file`: B statistic file (must be sorted by location)
 * `use_effect_size`: whether to use the magnitude of the GWAS beta when calculating polygenic statistic
-* `num_bins`: number of bins to use for matching
+* `num_bins`: number of bins to use for matching (if you use a different number from the default 8, you will need to edit the bin cutoffs in `polygenic_window_test.py`)
 * `num_trials`: number of trials used to generate null distribution
 * `window_size`: size of window (in bp) when picking most significant SNP
