@@ -10,12 +10,15 @@ Command-line Arguments:
 import sys
 import math
 
+import yaml
 import numpy as np
 from scipy.stats.distributions import chi2
 import statistics
 
 num_chunks = int(sys.argv[1])
 chunk_size = int(sys.argv[2])
+
+config = yaml.safe_load(open("monogenic_config.yml"))
 
 epoch = config['populations']['target']
 source1 = config['populations']['source1']
@@ -53,7 +56,7 @@ pert_stats = np.load(scan_prefix + "pertStat0.npy")
 total_sample_sizes = [len(np.load(config['paths']['source1_indices'])), len(np.load(config['paths']['source2_indices'])), len(np.load(config['paths']['target_indices']))]
 
 file_names = ["p_vals", "stats", "targetFreq", "source1Freq", "source2Freq", "expected", "expectedH0", "source1SampleSize", "source2SampleSize", "targetSampleSize", "s1H0", "s2H0", "h1NegLog", "h0NegLog", "pertP", "pertStat"]
-arr_names = [p_vals, stats, t_freqs, s1_freqs, s2_freqs, expected, expected_h0, s1_n, s2_n, t_n, s1_h0s, s2_h0s, h1_neg_logs, h0_neg_logs, pert_p, pert_stat]
+arr_names = [p_vals, stats, t_freqs, s1_freqs, s2_freqs, expected, expected_h0, s1_n, s2_n, t_n, s1_h0s, s2_h0s, h1_neg_logs, h0_neg_logs, pert_p, pert_stats]
 
 # load all result arrays
 i = 0
