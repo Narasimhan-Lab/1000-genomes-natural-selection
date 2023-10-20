@@ -55,18 +55,28 @@ global rr_line
 global scan_line
 global b_line
 
-rr_file = open(config['paths']['rr_file'], 'r')
+# parse recombination rate map header
+rr_file = open(config['rr_file']['path'], 'r')
+rr_line = rr_file.readline()
+header = rr_line.split()
+rr_indices = {'chr': header.index(config['rr_file']['chr']),
+            'start': header.index(config['rr_file']['start']),
+            'end': header.index(config['rr_file']['end']),
+            'r_rate': header.index(config['rr_file']['r_rate']),
+            }
+rr_line = rr_file.readline()
+
 scan_file = open(config['paths']['selection_scan_path'], 'r')
 
 # parse b file header 
 b_file = open(config['b_file']['path'], 'r')
 b_line = b_file.readline()
 header = b_line.split()
-b_indices = {'bd': header.index(config['b_file']['bd']), 
-            'chr': header.index(config['b_file']['chr']),
+b_indices = {'chr': header.index(config['b_file']['chr']),
             'pos': header.index(config['b_file']['pos']),
+            'bd': header.index(config['b_file']['bd']), 
             'anc': header.index(config['b_file']['anc']),
-            'der': header.index(config['b_file']['der']),
+            'der': header.index(config['b_file']['der'])
             }
 b_line = b_file.readline()
 
@@ -139,15 +149,15 @@ def get_recombination_rate(find_chr, find_loc):
     global rr_line
     while(rr_line):
         rr_split = rr_line.split()
-        rr_chr = rr_split[0]
-        rr_begin = int(rr_split[1])
-        rr_end = int(rr_split[2])
+        rr_chr = rr_split[rr_indices['chr']]
+        rr_begin = int(rr_split[rr_indices['start']])
+        rr_end = int(rr_split[rr_indices['end']])
 
         if rr_chr == "X":
             return np.nan
 
         if rr_chr == find_chr and find_loc >= rr_begin and find_loc < rr_end:
-            return float(rr_split[3])
+            return float(rr_split[rr_indices['r_rate']])
 
         if int(rr_chr) > int(find_chr) or (rr_chr == find_chr and rr_begin > find_loc):
             return np.nan
@@ -229,10 +239,6 @@ gwas_line = gwas_file.readline()
 COL_INDICES = get_column_indices(gwas_line)
 gwas_line = gwas_file.readline()
 
-
-rr_line = rr_file.readline()
-rr_line = rr_file.readline()
-
 # initialize data structures and window variables
 LOWEST_P = np.nan
 LOWEST_STAT = np.nan
@@ -303,7 +309,7 @@ while(scan_line):
         # calculate the derived allele frequency bin
         daf_bin = (NUM_BINS - 1) if daf == 1 else int(daf // (1 / NUM_BINS))
 
-                # assign the direction of selection from scan results
+        # assign the direction of selection from scan results
         if t_freq > t_exp:
             direction = 1
         elif t_freq < t_exp:

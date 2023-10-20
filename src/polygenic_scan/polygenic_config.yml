@@ -9,30 +9,45 @@ paths:
     #file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
     selection_scan_path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results_v5_recorrect.txt"
 
-    # file with recombination rate map
-    rr_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
-
     # path to save result of trials
     out: "../../out/polygenic/"
 
-# header names and path for white-space delimited B statistic file
+# header names and path for whitespace-delimited recombination rate map
+rr_file:
+    # recombination rate map path
+    path: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
+
+    # name of column with chromosome
+    chr: "Chr"
+
+    # name of column with beginning of genomic region
+    start: "Begin"
+
+    # name of column with end of genomic region (exclusive)
+    end: "End"
+
+    # name of column with recombination rate in cMperMb
+    r_rate: "cMperMb"
+
+
+# header names and path for whitespace-delimited B statistic file
 b_file:
     # B file path
     path: "/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp_annot_v2_final"
 
-    # column name with chromosome
+    # name of column with chromosome
     chr: "chr"
 
-    # column name with position
+    # name of column with position
     pos: "pos"
 
-    # column name with B statistic decile
+    # name of column with B statistic decile (i.e., 0, 1, ..., 9)
     bd: "BD"
 
-    # column name with ancestral allele
+    # name of column with ancestral allele
     anc: "anc"
 
-    # column name with derived allele
+    # name of column with derived allele
     der: "der"
 
 options:
