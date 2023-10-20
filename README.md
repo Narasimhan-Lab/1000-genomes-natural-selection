@@ -54,7 +54,7 @@ The following variables will also need to be adjusted in polygenic_config.yml:
 * `selection_scan_path`: file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
 * `rr_file`: file with recombination rate map (must be sorted by location)
 * `scan_file`: file with monogenic selection scan results
-* `b_file`: B statistic file (must be sorted by location)
+* `b_file`: B statistic deciles file (must be sorted by location); must have columns for chromosome, position, B statistic decile, and ancestral/derived alleles
 * `use_effect_size`: whether to use the magnitude of the GWAS beta when calculating polygenic statistic
 * `num_bins`: number of bins to use for matching (if you use a different number from the default 8, you will need to edit the bin cutoffs in `polygenic_window_test.py`)
 * `num_trials`: number of trials used to generate null distribution

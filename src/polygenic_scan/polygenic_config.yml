@@ -12,21 +12,34 @@ paths:
     # file with recombination rate map
     rr_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
 
-    # B statistic file
-    b_file: "/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp.annot_v2"
-
     # path to save result of trials
     out: "../../out/polygenic/"
 
+# header names and path for white-space delimited B statistic file
+b_file:
+    # B file path
+    path: "/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp_annot_v2_final"
+
+    # column name with chromosome
+    chr: "chr"
+
+    # column name with position
+    pos: "pos"
+
+    # column name with B statistic decile
+    bd: "BD"
+
+    # column name with ancestral allele
+    anc: "anc"
+
+    # column name with derived allele
+    der: "der"
 
 options:
     # True to use magnitude of beta when calculating polarized statistic
     # False to just use the sign of beta
     use_effect_size: false
 
-    # number bins to use when matching for LD score, B statistic, allele frequencies, etc.
-    num_bins: 8
-    
     # number of trials used to generate null distribution
     num_trials: 10000
 

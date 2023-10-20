@@ -49,11 +49,28 @@ else:
 # quantiles computed from recombination rate map
 RR_CUTOFFS = [1.42309722e-19, 1.33096160e-06, 7.99490360e-04, 1.00316488e-02, 5.29890833e-02, 1.98940513e-01, 8.59677415e-01, 9999999999]
 
+# use global file markers/lines so we only have to pass through the files once
+global gwas_line
+global rr_line
+global scan_line
+global b_line
+
 rr_file = open(config['paths']['rr_file'], 'r')
 scan_file = open(config['paths']['selection_scan_path'], 'r')
-b_file = open(config['paths']['b_file'], 'r')
 
-NUM_BINS = config['options']['num_bins']
+# parse b file header 
+b_file = open(config['b_file']['path'], 'r')
+b_line = b_file.readline()
+header = b_line.split()
+b_indices = {'bd': header.index(config['b_file']['bd']), 
+            'chr': header.index(config['b_file']['chr']),
+            'pos': header.index(config['b_file']['pos']),
+            'anc': header.index(config['b_file']['anc']),
+            'der': header.index(config['b_file']['der']),
+            }
+b_line = b_file.readline()
+
+NUM_BINS = 8
 NUM_TRIALS = config['options']['num_trials']
 WINDOW_SIZE = config['options']['window_size']
 
@@ -75,8 +92,6 @@ print("Threshold:", P_CUTOFF)
 print("Number of trials:", NUM_TRIALS)
 print("Number of bins:", NUM_BINS)
 
-invalid_count = 0
-
 def get_gwas_line(find_chr, find_loc):
     """ Parses GWAS file line for a given loci
     Args:
@@ -85,7 +100,6 @@ def get_gwas_line(find_chr, find_loc):
     Returns:
         dictionary containing GWAS p-value, GWAS beta, ref allele, alt allele, allele frequency
     """
-    global invalid_count
     global gwas_line
     while(gwas_line):
         g_split = gwas_line.split()
@@ -141,39 +155,19 @@ def get_recombination_rate(find_chr, find_loc):
         rr_line = rr_file.readline()
     return np.nan
 
-def get_bscore(find_chr, find_loc):
-    """ Finds B statistic for a given location
+def get_bdecile(find_chr, find_loc):
+    """ Finds B statistic decile for a given location
     Args:
         find_chr: chromosome of location to get B statistic for
         find_loc: position of location to get B statistic for
     Returns:
-        B statistic
+        B statistic decile
     """
-    global b_line   
+    global b_line
     while(b_line):
         b_split = b_line.split()
-        b_chr = b_split[1]
-        b_loc = int(b_split[3])
-
-        b_ref = b_split[4]
-        b_alt = b_split[5]
-
-        anc_der = b_split[12]
-
-        b_anc = np.nan
-        b_der = np.nan
-
-        if anc_der != "." and anc_der != ".,.":
-            ref_code = int(anc_der.split(",")[0])
-            alt_code = int(anc_der.split(",")[1])
-            if ref_code == 1 and alt_code == 0:
-                b_anc = b_alt
-                b_der = b_ref
-            elif ref_code == 0 and alt_code == 1:
-                b_anc = b_ref
-                b_der = b_alt
-            else:
-                assert 0
+        b_chr = b_split[b_indices['chr']]
+        b_loc = int(b_split[b_indices['pos']])
 
         # reached the end of the relevant lines
         if b_chr == "23":
@@ -181,9 +175,9 @@ def get_bscore(find_chr, find_loc):
 
         # check for match
         if b_chr == find_chr and find_loc == b_loc:
-            if b_split[6] == "." or b_split[6][-1:] == "-":
-                return np.nan
-            return {'score':int(b_split[6][-1:]), 'anc':b_anc, 'der':b_der}
+            return {'decile': int(b_split[b_indices['bd']]), 
+                    'anc': b_split[b_indices['anc']], 
+                    'der': b_split[b_indices['der']]}
 
         # check if we've gone too far
         if int(b_chr) > int(find_chr) or (b_chr == find_chr and b_loc > find_loc):
@@ -216,11 +210,6 @@ def get_column_indices(header):
     assert found
     return indices
 
-# use global files/lines so we only have to pass through the files once
-global gwas_line
-global rr_line
-global b_line
-global scan_line
 
 scan_line = scan_file.readline()
 header = scan_line.split()
@@ -243,11 +232,6 @@ gwas_line = gwas_file.readline()
 
 rr_line = rr_file.readline()
 rr_line = rr_file.readline()
-
-b_line = b_file.readline()
-# skip over header lines
-while (b_line[0] == '#'):
-    b_line = b_file.readline()
 
 # initialize data structures and window variables
 LOWEST_P = np.nan
@@ -293,7 +277,7 @@ while(scan_line):
         t_exp = float(split_line[COL_SCAN_T_EXP])
 
         # get B statistic for this chromosome and position, if it exists
-        bscore_data = get_bscore(chrom, loc)
+        bscore_data = get_bdecile(chrom, loc)
 
         # get recombination rate for this chromosome and position, if it exists
         r_rate = get_recombination_rate(chrom, loc)
@@ -383,18 +367,17 @@ while(scan_line):
             if not np.isnan(LOWEST_P):
                 # bin the current lowest, since it's no longer the lowest in this window
                 other_variants[LOWEST_DAF_BIN][LOWEST_B_VALUE][LOWEST_RR_BIN].append(LOWEST_STAT) 
-
             # save the current variant as the current lowest in this window
             LOWEST_P = gwas_data['p_val']
             LOWEST_STAT = polarized
             LOWEST_DAF_BIN = daf_bin
-            LOWEST_B_VALUE = bscore_data['score']
+            LOWEST_B_VALUE = bscore_data['decile']
             LOWEST_RR_BIN = rr_bin
             LOWEST_CHR = chrom
             LOWEST_POS = loc
         else:
             # this variant is not lower than the current lowest, so bin it
-            other_variants[daf_bin][bscore_data['score']][rr_bin].append(polarized)
+            other_variants[daf_bin][bscore_data['decile']][rr_bin].append(polarized)
 
     scan_line = scan_file.readline()
 
