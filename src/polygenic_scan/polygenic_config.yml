@@ -1,19 +1,5 @@
-# polygenic scan hyperparameters
-options:
-    # True to use magnitude of beta when calculating polarized statistic
-    # False to just use the sign of beta
-    use_effect_size: false
-    # number of trials used to generate null distribution
-    num_trials: 10000
-    # size of window (in bp) when picking most significant SNP
-    window_size: 100000
-
-# Polygenic data paths
-paths:
-    #file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
-    selection_scan_path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results_v5_recorrect.txt"
-    # path to save result of trials
-    out: "../../out/polygenic/"
+# path to save scan results
+out_path: "../../out/polygenic/"
 
 # header names and path for GWAS summary statistic files
 gwas_files:
@@ -38,6 +24,28 @@ gwas_files:
     # name of column with allele that corresponds to allele frequency (specified in 'freq')
     # i.e., this should be the same column as either allele1 or allele2
     freq_a: "Allele2"
+
+# header names and path for file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
+selection_file:
+    path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results_v5_recorrect.txt"
+    # name of column with chromosome
+    chr: "CHROM"
+    # name of column with position
+    pos: "POSITION"
+    # name of column with reference allele
+    ref: "REF"
+    # name of column with alternate allele
+    alt: "ALT"
+    # name of column with target population allele frequency
+    # used with 'expected_target_freq' to find direction of selection
+    target_freq: "TARGET_FREQ"
+    # name of column with expected allele frequency for the target population
+    # used with 'target_freq' to find direction of selection
+    expected_target_freq: "EXPECTED"
+    # name of column with monogenic selection scan statistic (after correction for genomic inflation)
+    # the value should be NA for invalid results
+    statistic: "correctedStat"
+    
 
 # header names and path for whitespace-delimited recombination rate map
 rr_file:
@@ -68,3 +76,12 @@ b_file:
     # name of column with derived allele
     der: "der"
 
+# polygenic scan hyperparameters
+options:
+    # True to use magnitude of beta when calculating polarized statistic
+    # False to just use the sign of beta
+    use_effect_size: false
+    # number of trials used to generate null distribution
+    num_trials: 10000
+    # size of window (in bp) when picking most significant SNP
+    window_size: 100000

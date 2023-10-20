@@ -51,9 +51,9 @@ RR_CUTOFFS = [1.42309722e-19, 1.33096160e-06, 7.99490360e-04, 1.00316488e-02, 5.
 # use global file markers/lines so we only have to pass through the files once
 global gwas_line
 global rr_line
-global scan_line
 global b_line
 
+# parse GWAS file header
 gwas_line = gwas_file.readline()
 header = gwas_line.split()
 gwas_indices = {'chr': header.index(config['gwas_files']['chr']),
@@ -67,6 +67,21 @@ gwas_indices = {'chr': header.index(config['gwas_files']['chr']),
             }
 gwas_line = gwas_file.readline()
 
+# parse monogenic selection scan header
+scan_file = open(config['selection_file']['path'], 'r')
+scan_line = scan_file.readline()
+header = scan_line.split()
+scan_indices = {'chr': header.index(config['selection_file']['chr']),
+                'pos': header.index(config['selection_file']['pos']),
+                'ref': header.index(config['selection_file']['ref']),
+                'alt': header.index(config['selection_file']['alt']),
+                't_freq': header.index(config['selection_file']['target_freq']),
+                'exp': header.index(config['selection_file']['expected_target_freq']),
+                'stat': header.index(config['selection_file']['statistic'])
+                }
+
+scan_line = scan_file.readline()
+
 # parse recombination rate map header
 rr_file = open(config['rr_file']['path'], 'r')
 rr_line = rr_file.readline()
@@ -77,8 +92,6 @@ rr_indices = {'chr': header.index(config['rr_file']['chr']),
             'r_rate': header.index(config['rr_file']['r_rate'])
             }
 rr_line = rr_file.readline()
-
-scan_file = open(config['paths']['selection_scan_path'], 'r')
 
 # parse b file header 
 b_file = open(config['b_file']['path'], 'r')
@@ -95,18 +108,6 @@ b_line = b_file.readline()
 NUM_BINS = 8
 NUM_TRIALS = config['options']['num_trials']
 WINDOW_SIZE = config['options']['window_size']
-
-# BBJ headers
-COL_HEADERS = [["CHR", "POS", "p.value", "Allele1", "Allele2", "BETA", "AF_Allele2_UKB", "Allele2"], ["CHR", "BP", "P_BOLT_LMM_INF", "ALLELE0", "ALLELE1", "BETA", "A1FREQ", "ALLELE1"], ["CHR", "POS", "p.value", "Allele1", "Allele2", "BETA", "AF_Allele2", "Allele2"]]
-
-COL_CHR = 0
-COL_POS = 1
-COL_P = 2
-COL_REF = 3
-COL_ALT = 4
-COL_BETA = 5
-COL_FREQ = 6
-COL_FREQA = 7
 
 print("Population:", EPOCH)
 print("GWAS Path:", gwas_path)
@@ -215,21 +216,6 @@ def get_bdecile(find_chr, find_loc):
         b_line = b_file.readline()
     return np.nan
 
-scan_line = scan_file.readline()
-header = scan_line.split()
-
-# column indices in the admixture scan result file
-COL_SCAN_CHR = header.index("CHROM")
-COL_SCAN_POS = header.index("POSITION")
-COL_SCAN_REF = header.index("REF")
-COL_SCAN_ALT = header.index("ALT")
-COL_SCAN_T_FREQ = header.index("TARGET_FREQ")
-COL_SCAN_T_EXP = header.index("EXPECTED")
-COL_SCAN_STAT = header.index("correctedStat")
-
-scan_line = scan_file.readline()
-
-
 # initialize data structures and window variables
 LOWEST_P = np.nan
 LOWEST_STAT = np.nan
@@ -258,20 +244,20 @@ while(scan_line):
     split_line = scan_line.split()
     
     # parse admixture scan results file line
-    chrom = split_line[COL_SCAN_CHR]
-    loc = int(split_line[COL_SCAN_POS])
-    ref = split_line[COL_SCAN_REF]
-    alt = split_line[COL_SCAN_ALT]
+    chrom = split_line[scan_indices['chr']]
+    loc = int(split_line[scan_indices['pos']])
+    ref = split_line[scan_indices['ref']]
+    alt = split_line[scan_indices['alt']]
     
     # get GWAS data for this chromosome and position, if it exists
     gwas_data = get_gwas_line(chrom, loc)
 
     # check that this position overlaps with GWAS
-    if not isinstance(gwas_data, float) and (split_line[COL_SCAN_STAT] != "NA") and ((ref == gwas_data['ref'] and alt == gwas_data['alt']) or (ref == gwas_data['alt'] and alt == gwas_data['ref'])) and not math.isinf(gwas_data['beta']):
+    if not isinstance(gwas_data, float) and (split_line[scan_indices['stat']] != "NA") and ((ref == gwas_data['ref'] and alt == gwas_data['alt']) or (ref == gwas_data['alt'] and alt == gwas_data['ref'])) and not math.isinf(gwas_data['beta']):
 
-        stat = float(split_line[COL_SCAN_STAT])
-        t_freq = float(split_line[COL_SCAN_T_FREQ])
-        t_exp = float(split_line[COL_SCAN_T_EXP])
+        stat = float(split_line[scan_indices['stat']])
+        t_freq = float(split_line[scan_indices['t_freq']])
+        t_exp = float(split_line[scan_indices['exp']])
 
         # get B statistic for this chromosome and position, if it exists
         bscore_data = get_bdecile(chrom, loc)
@@ -421,7 +407,7 @@ if num_lowest != 0:
     print("Number of trials higher:", higher_count)     
     print("Number of trials equal:", equal_count)       
 
-    out_path = config['paths']['out'] + "trial_results/" 
+    out_path = config['out_path'] + "trial_results/" 
     if not os.path.exists(out_path):
         os.makedirs(out_path)
     
