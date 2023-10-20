@@ -1,31 +1,54 @@
-# Polygenic data paths
+# polygenic scan hyperparameters
+options:
+    # True to use magnitude of beta when calculating polarized statistic
+    # False to just use the sign of beta
+    use_effect_size: false
+    # number of trials used to generate null distribution
+    num_trials: 10000
+    # size of window (in bp) when picking most significant SNP
+    window_size: 100000
 
+# Polygenic data paths
 paths:
+    #file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
+    selection_scan_path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results_v5_recorrect.txt"
+    # path to save result of trials
+    out: "../../out/polygenic/"
+
+# header names and path for GWAS summary statistic files
+gwas_files:
     # directory containing GWAS summary statistics, should have uniform path format across traits
     # e.g., for our analysis, all UKB summary statistics had the filepath /GWAS_stats/hum0197.v3.EUR.{trait}.v1/*.auto.txt
     # you will need to edit polygenic_window_test.py if your path format differs
-    gwas_path: "/scratch/07754/meganle/GWAS_stats/"
-
-    #file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
-    selection_scan_path: "/work2/07754/meganle/lonestar/shared/admixture_scans/v4.5_results_sorted/sorted_EN_scan_results_v5_recorrect.txt"
-
-    # path to save result of trials
-    out: "../../out/polygenic/"
+    path: "/scratch/07754/meganle/GWAS_stats/"
+    # name of column with chromosome
+    chr: "CHR"
+    # name of column with position
+    pos: "POS"
+    # name of column with association p-value
+    p: "p.value"
+    # name of column with first allele (e.g., ref allele)
+    allele1: "Allele1"
+    # name of column with second allele (e.g., alt allele)
+    allele2: "Allele2"
+    # name of column with effect size (beta)
+    beta: "BETA"
+    # name of column with allele frequency (specify which allele in 'freq_a')
+    freq: "AF_Allele2_UKB"
+    # name of column with allele that corresponds to allele frequency (specified in 'freq')
+    # i.e., this should be the same column as either allele1 or allele2
+    freq_a: "Allele2"
 
 # header names and path for whitespace-delimited recombination rate map
 rr_file:
     # recombination rate map path
     path: "/work/07754/meganle/lonestar/shared/polygenic_scan/deCodeMap_sorted.txt"
-
     # name of column with chromosome
     chr: "Chr"
-
     # name of column with beginning of genomic region
     start: "Begin"
-
     # name of column with end of genomic region (exclusive)
     end: "End"
-
     # name of column with recombination rate in cMperMb
     r_rate: "cMperMb"
 
@@ -34,29 +57,14 @@ rr_file:
 b_file:
     # B file path
     path: "/work/07754/meganle/lonestar/shared/polygenic_scan/v21.0.snp_annot_v2_final"
-
     # name of column with chromosome
     chr: "chr"
-
     # name of column with position
     pos: "pos"
-
     # name of column with B statistic decile (i.e., 0, 1, ..., 9)
     bd: "BD"
-
     # name of column with ancestral allele
     anc: "anc"
-
     # name of column with derived allele
     der: "der"
 
-options:
-    # True to use magnitude of beta when calculating polarized statistic
-    # False to just use the sign of beta
-    use_effect_size: false
-
-    # number of trials used to generate null distribution
-    num_trials: 10000
-
-    # size of window (in bp) when picking most significant SNP
-    window_size: 100000

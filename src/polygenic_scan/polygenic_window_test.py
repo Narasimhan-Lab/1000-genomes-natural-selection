@@ -37,8 +37,7 @@ P_CUTOFF = np.float_power(10, -1 * P_EXP)
 DATASET = sys.argv[3]
 
 if DATASET == "UKB":
-    gwas_path = config['paths']['gwas_path'] + DATASET + "/hum0197.v3.EUR." + TRAIT + ".v1/*.auto.txt"
-    print(gwas_path)
+    gwas_path = config['gwas_files']['path'] + DATASET + "/hum0197.v3.EUR." + TRAIT + ".v1/*.auto.txt"
     gwas_file = open(glob.glob(gwas_path)[0], 'r')
 elif DATASET == "BBJ":
     gwas_path = config['paths']['gwas_path'] + DATASET + "/hum0197.v3.BBJ." + TRAIT + ".v1/*.auto.txt"
@@ -55,6 +54,19 @@ global rr_line
 global scan_line
 global b_line
 
+gwas_line = gwas_file.readline()
+header = gwas_line.split()
+gwas_indices = {'chr': header.index(config['gwas_files']['chr']),
+                'pos': header.index(config['gwas_files']['pos']),
+                'p': header.index(config['gwas_files']['p']),
+                'allele1': header.index(config['gwas_files']['allele1']),
+                'allele2': header.index(config['gwas_files']['allele2']),
+                'beta': header.index(config['gwas_files']['beta']),
+                'freq': header.index(config['gwas_files']['freq']),
+                'freq_a': header.index(config['gwas_files']['freq_a'])
+            }
+gwas_line = gwas_file.readline()
+
 # parse recombination rate map header
 rr_file = open(config['rr_file']['path'], 'r')
 rr_line = rr_file.readline()
@@ -62,7 +74,7 @@ header = rr_line.split()
 rr_indices = {'chr': header.index(config['rr_file']['chr']),
             'start': header.index(config['rr_file']['start']),
             'end': header.index(config['rr_file']['end']),
-            'r_rate': header.index(config['rr_file']['r_rate']),
+            'r_rate': header.index(config['rr_file']['r_rate'])
             }
 rr_line = rr_file.readline()
 
@@ -113,8 +125,8 @@ def get_gwas_line(find_chr, find_loc):
     global gwas_line
     while(gwas_line):
         g_split = gwas_line.split()
-        g_chr = g_split[COL_INDICES[COL_CHR]]
-        g_loc = int(float(g_split[COL_INDICES[COL_POS]]))
+        g_chr = g_split[gwas_indices['chr']]
+        g_loc = int(float(g_split[gwas_indices['pos']]))
 
         if g_chr == "X" or g_chr == "Y":
             return np.nan
@@ -122,11 +134,17 @@ def get_gwas_line(find_chr, find_loc):
         # check for match
         if g_chr == find_chr and find_loc == g_loc:
             try:
-                test = float(g_split[COL_INDICES[COL_FREQ]])
+                test = float(g_split[gwas_indices['freq']])
             except:
                 gwas_line = gwas_file.readline()
                 return np.nan
-            return {'p_val': float(g_split[COL_INDICES[COL_P]]), 'ref': g_split[COL_INDICES[COL_REF]], 'alt':g_split[COL_INDICES[COL_ALT]], 'beta':float(g_split[COL_INDICES[COL_BETA]]), 'freq':float(g_split[COL_INDICES[COL_FREQ]]), 'freq_allele':g_split[COL_INDICES[COL_FREQA]]}
+            return {'p_val': float(g_split[gwas_indices['p']]), 
+                    'ref': g_split[gwas_indices['allele1']], 
+                    'alt': g_split[gwas_indices['allele2']], 
+                    'beta': float(g_split[gwas_indices['beta']]), 
+                    'freq': float(g_split[gwas_indices['freq']]), 
+                    'freq_allele': g_split[gwas_indices['freq_a']]
+                    }
 
         # check if we've gone too far
         if int(g_chr) > int(find_chr) or (g_chr == find_chr and g_loc > find_loc):
@@ -197,30 +215,6 @@ def get_bdecile(find_chr, find_loc):
         b_line = b_file.readline()
     return np.nan
 
-def get_column_indices(header):
-    """ Returns column indices for values in GWAS files (so that different GWAS file formats can be submitted in the same batch of jobs) 
-    Args:
-        header line
-    Returns:
-        list of indices corresponding to relevant columns
-    """
-    h_split = header.split()
-    indices = np.zeros(len(COL_HEADERS[0]), dtype=int)
-
-    found = False
-    for head_type in COL_HEADERS:
-        try:
-            j = 0
-            for col in head_type:
-                indices[j] = h_split.index(col)
-                j += 1
-            found = True
-        except:
-            continue
-    assert found
-    return indices
-
-
 scan_line = scan_file.readline()
 header = scan_line.split()
 
@@ -235,9 +229,6 @@ COL_SCAN_STAT = header.index("correctedStat")
 
 scan_line = scan_file.readline()
 
-gwas_line = gwas_file.readline()
-COL_INDICES = get_column_indices(gwas_line)
-gwas_line = gwas_file.readline()
 
 # initialize data structures and window variables
 LOWEST_P = np.nan

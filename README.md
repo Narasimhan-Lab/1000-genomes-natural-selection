@@ -50,11 +50,18 @@ with the following parameter descriptions:
 * `DATASET`: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank (if you use a different dataset, you will have to edit the paths and headers in `polygenic_window_test.py`)
 
 The following variables will also need to be adjusted in polygenic_config.yml:
-* `gwas_file`: path to directory containing GWAS summary statistics, where `gwas_file` contains a `UKB` directory and a `BBJ` directory that contain the unzipped summary statistic files. You will have to edit the paths in `polygenic_window_test.py` to use different datasets
+* `gwas_files`: 
+    * `path`: path to directory containing GWAS summary statistics, where `gwas_file` contains a `UKB` directory and a `BBJ` directory that contain the unzipped summary statistic files. You will have to edit the paths in `polygenic_window_test.py` to use different datasets
+    * column names for chromosome position, GWAS p-value, effect size, alleles, and allele frequency
 * `selection_scan_path`: file with monogenic selection scan statistics (i.e., compiled monogenic scan results after correction for genomic inflation)
-* `rr_file`: file with recombination rate map (must be sorted by location); must have columns for chromosome, start and end of region, and recombination rate
+* `rr_file`: 
+    * `path`: path to file with recombination rate map (must be sorted by location)
+    *  column names for chromosome, start and end of region, and recombination rate
 * `scan_file`: file with monogenic selection scan results
-* `b_file`: B statistic deciles file (must be sorted by location); must have columns for chromosome, position, B statistic decile (i.e., 0, 1, ..., 9), and ancestral/derived alleles
-* `use_effect_size`: whether to use the magnitude of the GWAS beta when calculating polygenic statistic
-* `num_trials`: number of trials used to generate null distribution
-* `window_size`: size of window (in bp) when picking most significant SNP
+* `b_file`: 
+    * `path`: path to B statistic deciles file (must be sorted by location)
+    * column names for chromosome, position, B statistic decile (i.e., 0, 1, ..., 9), and ancestral/derived alleles
+* options:
+    * `use_effect_size`: whether to use the magnitude of the GWAS beta when calculating polygenic statistic
+    * `num_trials`: number of trials used to generate null distribution
+    * `window_size`: size of window (in bp) when picking most significant SNP
