@@ -45,7 +45,6 @@ selection_file:
     # name of column with monogenic selection scan statistic (after correction for genomic inflation)
     # the value should be NA for invalid results
     statistic: "correctedStat"
-    
 
 # header names and path for whitespace-delimited recombination rate map
 rr_file:
@@ -59,7 +58,6 @@ rr_file:
     end: "End"
     # name of column with recombination rate in cMperMb
     r_rate: "cMperMb"
-
 
 # header names and path for whitespace-delimited B statistic file
 b_file:

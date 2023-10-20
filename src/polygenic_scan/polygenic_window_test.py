@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """ Polygenic Window Test
 
-Performs a scan for evidence of polygenic selection on a given GWAS trait using the monogenic selection scan statistics.
+Performs a scan for evidence of polygenic selection on a given GWAS trait using the monogenic selection scan statistics. The script will print results for the given trait/p-value threshold combination, but you can also use combine_polygenic_results.py to copmile results for many traits into one file.
 
-Configure paths and options polygenic_config.yml.
+Configure paths and options in polygenic_config.yml.
 
 Command-line Arguments:
     [1] TRAIT: GWAS trait ID (e.g., A02B, A10, AA...)
@@ -40,7 +40,7 @@ if DATASET == "UKB":
     gwas_path = config['gwas_files']['path'] + DATASET + "/hum0197.v3.EUR." + TRAIT + ".v1/*.auto.txt"
     gwas_file = open(glob.glob(gwas_path)[0], 'r')
 elif DATASET == "BBJ":
-    gwas_path = config['paths']['gwas_path'] + DATASET + "/hum0197.v3.BBJ." + TRAIT + ".v1/*.auto.txt"
+    gwas_path = config['gwas_files']['path'] + DATASET + "/hum0197.v3.BBJ." + TRAIT + ".v1/*.auto.txt"
     gwas_file = open(glob.glob(gwas_path)[0], 'r')
 else:
     assert 0
@@ -407,7 +407,7 @@ if num_lowest != 0:
     print("Number of trials higher:", higher_count)     
     print("Number of trials equal:", equal_count)       
 
-    out_path = config['out_path'] + "trial_results/" 
+    out_path = config['out_path'] + "trial_results/" + DATASET + "/"
     if not os.path.exists(out_path):
         os.makedirs(out_path)
     
