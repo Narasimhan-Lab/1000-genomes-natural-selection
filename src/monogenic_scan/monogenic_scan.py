@@ -324,7 +324,7 @@ ref_file.close()
 alt_file.close()
 
 # save all of the results arrays to output files
-out_path = config['paths']['out'] + target + '/result_arrs/'
+out_path = config['paths']['out'] + '/result_arrs/'
 if not os.path.exists(out_path):
     os.makedirs(out_path)
 

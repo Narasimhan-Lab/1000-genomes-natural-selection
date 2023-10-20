@@ -40,9 +40,9 @@ elif DATASET == "sib":
 else:
     assert 0
 
-full_file = open(prefix + DATASET.lower() + "_full_results.txt",'w')
-sig_file = open(prefix + DATASET.lower() + "_sig_trials.txt", 'w')
-trait_file = open(prefix + DATASET.lower() + "_traits_list.txt", 'w')
+full_file = open(prefix + DATASET + "_full_results.txt",'w')
+sig_file = open(prefix + DATASET + "_sig_trials.txt", 'w')
+trait_file = open(prefix + DATASET + "_traits_list.txt", 'w')
 
 # write headers
 full_file.write("Population\tTrait ID\tThreshold\tNumber SNPs\tNumber Lowest\tNumber Higher\tPercent Lower\tPercent Higher\n")
@@ -55,7 +55,7 @@ while(i < len(traits)):
     for pop in POPULATIONS:
         for thresh in THRESHOLDS:
             try:
-                results = np.load(prefix + "/trial_results/" + trait + "_" + thresh + "_" + pop + ".npy") 
+                results = np.load(prefix + "/trial_results/" + DATASET + "/" + trait + "_" + thresh + "_" + pop + ".npy") 
             except:
                 continue
 

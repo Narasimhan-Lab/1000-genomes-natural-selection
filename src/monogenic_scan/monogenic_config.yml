@@ -19,7 +19,7 @@ paths:
     alt_reads: "/work2/07754/meganle/lonestar/run_v19/data/altAlleles.hdf5"
     
     # directory where results should be saved (as npy arrays)
-    out: "../../out/scan/"
+    out: "../../out/monogenic/"
 
     # numpy arrays with each population's indices in the read count matrices
     target_indices: "/work2/07754/meganle/lonestar/run_v21/data/EN_indices.npy"
