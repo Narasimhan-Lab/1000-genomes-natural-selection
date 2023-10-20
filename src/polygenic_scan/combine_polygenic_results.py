@@ -8,8 +8,6 @@ Command-line Arguments:
     [2] THRESHOLDS: list of p-value threshold exponents, cannot have spaces (e.g., [2,4,6,8])
     [3] REPORT_THRESH: one p-value threshold exponent to use to report final significant traits
 
-For example, the command 'combine_polygenic_results.py UKB [2,4,6,8] 6' will search for runs that used the UK Biobank and p-value thresholds of 1e-2, 1e-4, 1e-6, and 1e-8. The trait list output file will report significant results that used the 1e-6 threshold.
-
 Outputs:
     /prefix/in/polygenic_config/{DATASET}_full_results.txt: all trials results
     /prefix/in/polygenic_config/{DATASET}_sig_trials.txt: all significant trial results

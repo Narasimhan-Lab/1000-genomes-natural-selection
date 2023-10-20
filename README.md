@@ -40,6 +40,9 @@ The `compile_monogenic_results.py` file will compile the output NumPy files from
 where `n` is the number of segments the genome was divided into (e.g. using ```divide_jobs.sh```, and `k` is the number of positions in each segment.
 
 ## Polygenic Scan
+
+### Running the scan
+
 The GWAS summary statistics used with this script can be found at https://humandbs.biosciencedbc.jp/files/hum0197.org/. The script is run as follows:
 ```
 ./polygenic_window_test.py TRAIT P_EXP DATASET
@@ -47,7 +50,7 @@ The GWAS summary statistics used with this script can be found at https://humand
 with the following parameter descriptions:
 * `TRAIT`: GWAS trait ID (e.g., A02B, A10, AA...)
 * `P_EXP`: p-value cutoff exponent for choosing significant GWAS SNPs (e.g., a `P_EXP` of 6 corresponds to using a cutoff of 1e-6)
-* `DATASET`: indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank (if you use a different dataset, you will have to edit the paths and headers in `polygenic_window_test.py`)
+* `DATASET`: UKB or BBJ, indicates whether the GWAS summary statistics are from Biobank Japan or UK Biobank (if you use a different dataset, you will have to edit the paths and headers in `polygenic_window_test.py`)
 
 The following variables will also need to be adjusted in polygenic_config.yml:
 * `out_path`: directory to save the polygenic scan results
@@ -67,3 +70,21 @@ The following variables will also need to be adjusted in polygenic_config.yml:
     * `use_effect_size`: whether to use the magnitude of the GWAS beta when calculating polygenic statistic
     * `num_trials`: number of trials used to generate null distribution
     * `window_size`: size of window (in bp) when picking most significant SNP
+
+### Compiling scan results
+
+Each run of `polygenic_window_test.py` will print the results of the scan. You can also use `combine_polygenic_results.py` to generate a summary of multiple runs into tab-delimited files. The script is run with
+```
+./combine_polygenic_results.py DATASET THRESHOLDS REPORT_THRESH
+```
+with the following parameter descriptions:
+    * `DATASET`: UKB or BBJ, indicating whether the GWAS summary statistics are from UK Biobank or Biobank Japan
+    * `THRESHOLDS`: list of p-value threshold exponents to include, cannot have spaces (e.g., [2,4,6,8])
+    * `REPORT_THRESH`: one p-value threshold exponent to use to report final significant traits
+
+For example, the command 'combine_polygenic_results.py UKB [2,4,6,8] 6' will search for runs that used the UK Biobank and p-value thresholds of 1e-2, 1e-4, 1e-6, and 1e-8. The trait list output file will report significant results that used the 1e-6 threshold.
+
+The combined results will be reported in the following files:
+    * `/prefix/in_polygenic_config/{DATASET}_full_results.txt`: all trials results
+    * `/prefix/in_polygenic_config/{DATASET}_sig_trials.txt`: all significant trial results
+    * `/prefix/in_polygenic_config/DATASET}_traits_list.txt`: all significant trial results using a threshold of REPORT_THRESH
