@@ -78,13 +78,13 @@ Each run of `polygenic_window_test.py` will print the results of the scan. You c
 ./combine_polygenic_results.py DATASET THRESHOLDS REPORT_THRESH
 ```
 with the following parameter descriptions:
-    * `DATASET`: UKB or BBJ, indicating whether the GWAS summary statistics are from UK Biobank or Biobank Japan
-    * `THRESHOLDS`: list of p-value threshold exponents to include, cannot have spaces (e.g., [2,4,6,8])
-    * `REPORT_THRESH`: one p-value threshold exponent to use to report final significant traits
+* `DATASET`: UKB or BBJ, indicating whether the GWAS summary statistics are from UK Biobank or Biobank Japan
+* `THRESHOLDS`: list of p-value threshold exponents to include, cannot have spaces (e.g., [2,4,6,8])
+* `REPORT_THRESH`: one p-value threshold exponent to use to report final significant traits
 
-For example, the command 'combine_polygenic_results.py UKB [2,4,6,8] 6' will search for runs that used the UK Biobank and p-value thresholds of 1e-2, 1e-4, 1e-6, and 1e-8. The trait list output file will report significant results that used the 1e-6 threshold.
+For example, the command `combine_polygenic_results.py UKB [2,4,6,8] 6` will search for runs that used the UK Biobank and p-value thresholds of 1e-2, 1e-4, 1e-6, and 1e-8. The trait list output file will report significant results that used the 1e-6 threshold.
 
 The combined results will be reported in the following files:
-    * `/prefix/in_polygenic_config/{DATASET}_full_results.txt`: all trials results
-    * `/prefix/in_polygenic_config/{DATASET}_sig_trials.txt`: all significant trial results
-    * `/prefix/in_polygenic_config/DATASET}_traits_list.txt`: all significant trial results using a threshold of REPORT_THRESH
+* `/prefix/in_polygenic_config/{DATASET}_full_results.txt`: all trials results
+* `/prefix/in_polygenic_config/{DATASET}_sig_trials.txt`: all significant trial results
+* `/prefix/in_polygenic_config/DATASET}_traits_list.txt`: all significant trial results using a threshold of REPORT_THRESH
