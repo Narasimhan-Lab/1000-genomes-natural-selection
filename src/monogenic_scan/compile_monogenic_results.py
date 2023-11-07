@@ -12,7 +12,7 @@ import math
 
 import yaml
 import numpy as np
-from scipy.stats.distributions import chi2
+from scipy.stats import ncx2
 import statistics
 
 num_chunks = int(sys.argv[1])
@@ -24,7 +24,7 @@ epoch = config['populations']['target']
 source1 = config['populations']['source1']
 source2 = config['populations']['source2']
 
-scan_prefix = config['paths']['out'] + epoch + "/"
+scan_prefix = config['paths']['out'] + "/"
 out_path = scan_prefix + epoch + "_scan_results.txt"
 scan_prefix += "result_arrs/"
 pos_path = config['paths']['chrom_pos'] 
@@ -67,17 +67,20 @@ while i < num_chunks - 1:
 
     i += 1
 
+# calculate non-centrality parameter
+lam = np.nanmedian(pert_stats)
+
 chros_file = open(pos_path, 'r')
 
 out_file = open(out_path, 'w')
-out_file.write("CHROM\tPOSITION\tREF\tALT\tSOURCE1_FREQ\tSOURCE2_FREQ\tTARGET_FREQ\tEXPECTED\tS1_H0\tS2_H0\tEXPECTED_H0\tH1_NEG_LOG\tH0_NEG_LOG\tSTATISTIC\tP_VALUE\tPERT_STAT\tPERT_P\tS1_N\tS2_N\tT_N\n")
+out_file.write("CHROM\tPOSITION\tREF\tALT\tSOURCE1_FREQ\tSOURCE2_FREQ\tTARGET_FREQ\tEXPECTED\tS1_H0\tS2_H0\tEXPECTED_H0\tH1_NEG_LOG\tH0_NEG_LOG\tSTATISTIC\tP_VALUE\tPERT_STAT\tPERT_P\tNCX2_P\tS1_N\tS2_N\tT_N\n")
 
 j = 0
 while j < len(p_vals):
     chrom_line = chros_file.readline()
     chrom_split = chrom_line.split()
 
-    out = chrom_line.rstrip() + "\t" + str(s1_freqs[j]) + "\t" + str(s2_freqs[j]) + "\t" + str(t_freqs[j]) + "\t" + str(expected[j]) + "\t" + str(s1_h0s[j]) + "\t" + str(s2_h0s[j]) + "\t" + str(expected_h0[j]) + "\t" + str(h1_neg_logs[j]) + "\t" + str(h0_neg_logs[j]) + "\t" + str(stats[j]) + "\t" + str(p_vals[j]) + "\t" + str(pert_stats[j]) + "\t" + str(pert_p[j]) + "\t" + str(int(s1_n[j])) + "\t" + str(int(s2_n[j])) + "\t" + str(int(t_n[j])) + "\n" 
+    out = chrom_line.rstrip() + "\t" + str(s1_freqs[j]) + "\t" + str(s2_freqs[j]) + "\t" + str(t_freqs[j]) + "\t" + str(expected[j]) + "\t" + str(s1_h0s[j]) + "\t" + str(s2_h0s[j]) + "\t" + str(expected_h0[j]) + "\t" + str(h1_neg_logs[j]) + "\t" + str(h0_neg_logs[j]) + "\t" + str(stats[j]) + "\t" + str(p_vals[j]) + "\t" + str(pert_stats[j]) + "\t" + str(pert_p[j]) + "\t" + str(ncx2.sf(pert_stats[j], 1, lam)) + "\t" + str(int(s1_n[j])) + "\t" + str(int(s2_n[j])) + "\t" + str(int(t_n[j])) + "\n" 
 
     out_file.write(out)
     
