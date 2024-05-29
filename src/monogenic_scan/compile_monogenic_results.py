@@ -66,28 +66,18 @@ while i < num_chunks - 1:
         arr_names[j] = np.append(arr_names[j], np.load(file_name))
     i += 1
 
-# calculate non-centrality parameter
-lam = np.nanmedian(pert_stats)
-
 chros_file = open(pos_path, 'r')
 
 out_file = open(out_path, 'w')
-out_file.write("CHROM\tPOSITION\tREF\tALT\tSOURCE1_FREQ\tSOURCE2_FREQ\tTARGET_FREQ\tEXPECTED\tS1_H0\tS2_H0\tEXPECTED_H0\tH1_NEG_LOG\tH0_NEG_LOG\tSTATISTIC\tP_VALUE\tPERT_STAT\tPERT_P\tNCX2_P\tS1_N\tS2_N\tT_N\n")
+out_file.write("CHROM\tPOSITION\tREF\tALT\tSOURCE1_FREQ\tSOURCE2_FREQ\tTARGET_FREQ\tEXPECTED\tS1_H0\tS2_H0\tEXPECTED_H0\tH1_NEG_LOG\tH0_NEG_LOG\tSTATISTIC\tP_VALUE\tPERT_STAT\tPERT_P\tS1_N\tS2_N\tT_N\n")
 
 j = 0
 while j < len(arr_names[0]):
     chrom_line = chros_file.readline()
     chrom_split = chrom_line.split()
 
-    out_file.write(chrom_line.rstrip() + '\t')
-    for k in range(13):
-        out_file.write(str(arr_names[k][j]) + '\t')
-
-    # writing the corrected perturbed statistic
-    out_file.write(str(ncx2.sf(arr_names[11][j], 1, lam)))
-
-    # write sample sizes
-    for k in range(13, 16):
+    out_file.write(chrom_line.rstrip())
+    for k in range(len(arr_names)):
         out_file.write('\t' + str(arr_names[k][j]))
 
     out_file.write('\n')
