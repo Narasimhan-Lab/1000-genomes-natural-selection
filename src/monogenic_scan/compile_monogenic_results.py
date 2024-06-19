@@ -69,7 +69,7 @@ while i < num_chunks - 1:
 chros_file = open(pos_path, 'r')
 
 out_file = open(out_path, 'w')
-out_file.write("CHROM\tPOSITION\tREF\tALT\tSOURCE1_FREQ\tSOURCE2_FREQ\tTARGET_FREQ\tEXPECTED\tS1_H0\tS2_H0\tEXPECTED_H0\tH1_NEG_LOG\tH0_NEG_LOG\tSTATISTIC\tP_VALUE\tPERT_STAT\tPERT_P\tS1_N\tS2_N\tT_N\n")
+out_file.write("CHROM\tPOSITION\tREF\tALT\t" + source1 + "_FREQ\t" + source2 + "_FREQ\t" + epoch + "_FREQ\tEXPECTED_FREQ\t" + source1 + "_H0\t" + source2 + "_H0\tEXPECTED_H0\tH1_NEG_LOG\tH0_NEG_LOG\tSTATISTIC\tP_VALUE\tPERT_STAT\tPERT_P\t" + source1 + "_N\t" + source2 + "_N\t" + epoch + "_N\n")
 
 j = 0
 while j < len(arr_names[0]):
